@@ -2,19 +2,10 @@ package utils
 
 import "math"
 
-func Mean(slice []float32) float32 {
-	var sum float32
-	for _, v := range slice {
-		sum += v
-	}
+var (
+	G float32 = 6.6743e-11
+)
 
-	return sum / float32(len(slice))
-}
-
-func QuadBell(n float32) float32 {
-	return float32(-math.Pow(float64(2*n-1), 2) + 1)
-}
-
-func GaussBell(n, a, o, w float32) float32 {
-	return float32(math.Exp(-math.Pow(float64(n-o), 2)/(2*math.Pow(float64(w), 2)))*2 - 1)
+func Gravity(m1, m2, d float32) float32 {
+	return G * (m2 * m1) / float32(math.Sqrt(float64(d)))
 }
