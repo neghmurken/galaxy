@@ -17,18 +17,18 @@ func main() {
 	var scale float32 = 1
 
 	rl.ToggleFullscreen()
-	rl.SetTargetFPS(60)
+	rl.SetTargetFPS(90)
 
 	w, h := float32(rl.GetScreenWidth())*scale, float32(rl.GetScreenHeight())*scale
 
 	shouldExit := false
 
-	c := m.MakeCosmos(9e6)
+	c := m.MakeCosmos(9e6, m.Space{W: w, H: h})
 
-	for i := 0; i < 1000; i++ {
+	for i := 0; i < 200; i++ {
 		c.Add(m.NewStaticBody(
 			m.RandVec(w, h),
-			rl.Remap(rand.Float32(), 0, 1, 100, 10000*scale),
+			rl.Remap(rand.Float32(), 0, 1, 1, 10)*scale,
 		))
 	}
 

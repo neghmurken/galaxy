@@ -27,11 +27,11 @@ func (this *Telescope) Watch(cosmos *m.Cosmos) {
 		rl.DrawCircle(
 			int32((body.Pos.X*this.Zoom + this.Offset.X)),
 			int32((body.Pos.Y*this.Zoom + this.Offset.Y)),
-			rl.Remap(body.Mass, 100, 10000, 1, 10)*this.Zoom,
+			body.Size*this.Zoom,
 			LerpColor(
 				color.RGBA{0x28, 0x1A, 0x66, 0xFF},
 				color.RGBA{0xFF, 0x91, 0x00, 0xFF},
-				rl.Vector2Length(body.Vel)/1000,
+				body.SizeGrowth/(body.SizeGrowth+body.Size)*2,
 			),
 		)
 	}

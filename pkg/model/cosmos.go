@@ -5,10 +5,11 @@ import rl "github.com/gen2brain/raylib-go/raylib"
 type Cosmos struct {
 	Bodies []*Body
 	Scale  float32
+	Bounds Space
 }
 
-func MakeCosmos(scale float32) *Cosmos {
-	return &Cosmos{Scale: scale}
+func MakeCosmos(scale float32, space Space) *Cosmos {
+	return &Cosmos{Scale: scale, Bounds: space}
 }
 
 func (this *Cosmos) Add(body *Body) {
@@ -24,7 +25,8 @@ func (this *Cosmos) Remove(index int) {
 
 func (this *Cosmos) Update(dt float32) {
 	for _, body := range this.Bodies {
-		body.ApplyForce(this.GatherForces(body), dt)
+		body.Grow(dt)
+		body.ApplyForce(this.GatherForces(body), dt, this.Bounds)
 	}
 
 	for i, body := range this.Bodies {
