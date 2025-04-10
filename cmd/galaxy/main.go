@@ -18,7 +18,6 @@ func main() {
 
 	rl.ToggleFullscreen()
 	rl.SetTargetFPS(60)
-	rl.ClearBackground(rl.Black)
 
 	w, h := float32(rl.GetScreenWidth())*scale, float32(rl.GetScreenHeight())*scale
 
@@ -26,8 +25,8 @@ func main() {
 
 	c := m.MakeCosmos(9e6)
 
-	for i := 0; i < 100; i++ {
-		c.AddBody(m.NewStaticBody(
+	for i := 0; i < 1000; i++ {
+		c.Add(m.NewStaticBody(
 			m.RandVec(w, h),
 			rl.Remap(rand.Float32(), 0, 1, 100, 10000*scale),
 		))

@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	EPSILON float32 = 0.00001
+	EPSILON float32 = 0.5
 )
 
 type Vec = rl.Vector2
@@ -26,6 +26,23 @@ func NewBody(pos, vel Vec, mass float32) *Body {
 
 func NewStaticBody(pos Vec, mass float32) *Body {
 	return NewBody(pos, rl.Vector2Zero(), mass)
+}
+
+func (this *Body) MeldWidth(other *Body) {
+	this.Vel = rl.Vector2Lerp(
+		other.Vel,
+		this.Vel,
+		this.Mass/(this.Mass+other.Mass),
+	)
+	this.Mass += other.Mass
+}
+
+func (this *Body) Collides(other *Body) bool {
+	if this == other {
+		return false
+	}
+
+	return rl.Vector2Length(this.Distance(other)) <= EPSILON
 }
 
 func (this *Body) Distance(other *Body) Vec {
