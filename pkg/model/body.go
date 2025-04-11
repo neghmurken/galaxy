@@ -10,7 +10,7 @@ import (
 
 var (
 	EPSILON   float32 = 0.5
-	GROW_RATE float32 = 25
+	GROW_RATE float32 = 100
 )
 
 type Vec = rl.Vector2
@@ -31,11 +31,10 @@ func NewStaticBody(pos Vec, mass float32) *Body {
 }
 
 func (this *Body) MeldWidth(other *Body) {
-	this.Vel = rl.Vector2Lerp(
-		other.Vel,
-		this.Vel,
-		this.Size/(this.Size+other.Size),
-	)
+	factor := this.Size / (this.Size + other.Size)
+
+	this.Vel = rl.Vector2Lerp(other.Vel, this.Vel, factor)
+	this.Pos = rl.Vector2Lerp(other.Pos, this.Pos, factor)
 	this.SizeGrowth += min(other.Size, this.Size)
 	this.Size = max(this.Size, other.Size)
 }
@@ -44,12 +43,16 @@ func (this *Body) GetMass() float32 {
 	return u.SizeToMass(this.Size)
 }
 
+func (this *Body) GetKineticEnergy() float32 {
+	return .5 * this.GetMass() * rl.Vector2LengthSqr(this.Vel)
+}
+
 func (this *Body) Collides(other *Body) bool {
 	if this == other {
 		return false
 	}
 
-	return rl.Vector2Length(this.Distance(other)) <= EPSILON
+	return rl.Vector2Length(this.Distance(other)) <= max(this.Size, other.Size)
 }
 
 func (this *Body) Distance(other *Body) Vec {
@@ -68,7 +71,12 @@ func (this *Body) GravityFrom(other *Body) Vec {
 
 	repulsion := rl.Vector2Scale(
 		rl.Vector2Negate(dir),
-		u.Explosion(this.GetMass(), u.SizeToMass(other.SizeGrowth), len),
+		u.Explosion(
+			this.GetMass(),
+			u.SizeToMass(other.SizeGrowth),
+			len,
+			50000/len,
+		),
 	)
 
 	return rl.Vector2Add(attraction, repulsion)

@@ -16,12 +16,10 @@ func main() {
 
 	var scale float32 = 1
 
-	rl.ToggleFullscreen()
+	rl.ToggleBorderlessWindowed()
 	rl.SetTargetFPS(90)
 
 	w, h := float32(rl.GetScreenWidth())*scale, float32(rl.GetScreenHeight())*scale
-
-	shouldExit := false
 
 	c := m.MakeCosmos(9e6, m.Space{W: w, H: h})
 
@@ -34,9 +32,29 @@ func main() {
 
 	t := r.NewTelescope(1 / scale)
 
-	for !shouldExit {
-		if rl.IsKeyPressed(rl.KeyEscape) || rl.WindowShouldClose() {
-			shouldExit = true
+loop:
+	for {
+		switch {
+		case rl.IsKeyPressed(rl.KeyEscape) && rl.WindowShouldClose():
+			break loop
+
+		case rl.IsKeyPressed(rl.KeyPageDown):
+			t.ZoomIn()
+
+		case rl.IsKeyPressed(rl.KeyPageUp):
+			t.ZoomOut()
+
+		case rl.IsKeyDown(rl.KeyLeft):
+			t.MoveLeft()
+
+		case rl.IsKeyDown(rl.KeyRight):
+			t.MoveRight()
+
+		case rl.IsKeyDown(rl.KeyUp):
+			t.MoveUp()
+
+		case rl.IsKeyDown(rl.KeyDown):
+			t.MoveDown()
 		}
 
 		c.Update(rl.GetFrameTime())

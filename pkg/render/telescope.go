@@ -7,6 +7,10 @@ import (
 	m "github.com/neghmurken/galaxy/pkg/model"
 )
 
+var (
+	MOVE_STEP float32 = 6
+)
+
 type Telescope struct {
 	Offset m.Vec
 	Zoom   float32
@@ -19,6 +23,30 @@ func NewTelescope(zoom float32) *Telescope {
 	}
 }
 
+func (this *Telescope) ZoomIn() {
+	this.Zoom *= .5
+}
+
+func (this *Telescope) ZoomOut() {
+	this.Zoom /= .5
+}
+
+func (this *Telescope) MoveLeft() {
+	this.Offset.X += MOVE_STEP * (1 / this.Zoom)
+}
+
+func (this *Telescope) MoveRight() {
+	this.Offset.X -= MOVE_STEP * (1 / this.Zoom)
+}
+
+func (this *Telescope) MoveUp() {
+	this.Offset.Y += MOVE_STEP * (1 / this.Zoom)
+}
+
+func (this *Telescope) MoveDown() {
+	this.Offset.Y -= MOVE_STEP * (1 / this.Zoom)
+}
+
 func (this *Telescope) Watch(cosmos *m.Cosmos) {
 	rl.BeginDrawing()
 	rl.ClearBackground(rl.Black)
@@ -27,8 +55,8 @@ func (this *Telescope) Watch(cosmos *m.Cosmos) {
 		rl.DrawCircle(
 			int32((body.Pos.X*this.Zoom + this.Offset.X)),
 			int32((body.Pos.Y*this.Zoom + this.Offset.Y)),
-			body.Size*this.Zoom,
-			LerpColor(
+			max(body.Size*this.Zoom, 1),
+			rl.ColorLerp(
 				color.RGBA{0x28, 0x1A, 0x66, 0xFF},
 				color.RGBA{0xFF, 0x91, 0x00, 0xFF},
 				body.SizeGrowth/(body.SizeGrowth+body.Size)*2,
@@ -37,13 +65,4 @@ func (this *Telescope) Watch(cosmos *m.Cosmos) {
 	}
 
 	rl.EndDrawing()
-}
-
-func LerpColor(left, right rl.Color, factor float32) rl.Color {
-	return rl.NewColor(
-		uint8(rl.Lerp(float32(left.R), float32(right.R), factor)),
-		uint8(rl.Lerp(float32(left.G), float32(right.G), factor)),
-		uint8(rl.Lerp(float32(left.B), float32(right.B), factor)),
-		0xFF,
-	)
 }
