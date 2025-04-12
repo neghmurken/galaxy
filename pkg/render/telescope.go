@@ -32,35 +32,43 @@ func (this *Telescope) ZoomOut() {
 }
 
 func (this *Telescope) MoveLeft() {
-	this.Offset.X += MOVE_STEP * (1 / this.Zoom)
+	this.Offset.X += MOVE_STEP / this.Zoom
 }
 
 func (this *Telescope) MoveRight() {
-	this.Offset.X -= MOVE_STEP * (1 / this.Zoom)
+	this.Offset.X -= MOVE_STEP / this.Zoom
 }
 
 func (this *Telescope) MoveUp() {
-	this.Offset.Y += MOVE_STEP * (1 / this.Zoom)
+	this.Offset.Y += MOVE_STEP / this.Zoom
 }
 
 func (this *Telescope) MoveDown() {
-	this.Offset.Y -= MOVE_STEP * (1 / this.Zoom)
+	this.Offset.Y -= MOVE_STEP / this.Zoom
 }
 
 func (this *Telescope) Watch(cosmos *m.Cosmos) {
 	rl.BeginDrawing()
-	rl.ClearBackground(rl.Black)
+	rl.ClearBackground(rl.NewColor(0x10, 0x10, 0x10, 0xff))
 
 	for _, body := range cosmos.Bodies {
 		rl.DrawCircle(
-			int32((body.Pos.X*this.Zoom + this.Offset.X)),
-			int32((body.Pos.Y*this.Zoom + this.Offset.Y)),
+			int32(body.Pos.X*this.Zoom+this.Offset.X),
+			int32(body.Pos.Y*this.Zoom+this.Offset.Y),
 			max(body.Size*this.Zoom, 1),
 			rl.ColorLerp(
-				color.RGBA{0x28, 0x1A, 0x66, 0xFF},
+				color.RGBA{0x38, 0x2A, 0x76, 0xFF},
 				color.RGBA{0xFF, 0x91, 0x00, 0xFF},
 				body.SizeGrowth/(body.SizeGrowth+body.Size)*2,
 			),
+		)
+
+		rl.DrawLine(
+			int32(body.Pos.X*this.Zoom+this.Offset.X),
+			int32(body.Pos.Y*this.Zoom+this.Offset.Y),
+			int32((body.Pos.X+body.Vel.X)*this.Zoom+this.Offset.X),
+			int32((body.Pos.Y+body.Vel.Y)*this.Zoom+this.Offset.Y),
+			rl.NewColor(0xff, 0xff, 0x00, 0x45),
 		)
 	}
 

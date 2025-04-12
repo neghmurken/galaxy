@@ -1,13 +1,12 @@
-package utils
+package model
 
 import (
 	"math"
-
-	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
 var (
-	G float32 = 6.6743e-11
+	G       float32 = 6.6743e-11
+	DENSITY float32 = 10
 )
 
 func Gravity(m1, m2, d float32) float32 {
@@ -19,9 +18,5 @@ func Explosion(m1, m2, d, s float32) float32 {
 }
 
 func SizeToMass(size float32) float32 {
-	if size == 0 {
-		return 0
-	}
-
-	return rl.Remap(size, 1, 10, 100, 10000)
+	return float32(math.Pi*math.Pow(float64(size), 2)) * DENSITY
 }

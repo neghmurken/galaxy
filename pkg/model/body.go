@@ -1,16 +1,15 @@
 package model
 
 import (
+	"math"
 	"math/rand"
-
-	u "github.com/neghmurken/galaxy/pkg/utils"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
 )
 
 var (
 	EPSILON   float32 = 0.5
-	GROW_RATE float32 = 100
+	GROW_RATE float32 = 50
 )
 
 type Vec = rl.Vector2
@@ -31,16 +30,18 @@ func NewStaticBody(pos Vec, mass float32) *Body {
 }
 
 func (this *Body) MeldWidth(other *Body) {
-	factor := this.Size / (this.Size + other.Size)
+	factor := this.GetMass() / (this.GetMass() + other.GetMass())
+	min := min(this.Size, other.Size)
+	max := max(this.Size, other.Size)
 
 	this.Vel = rl.Vector2Lerp(other.Vel, this.Vel, factor)
 	this.Pos = rl.Vector2Lerp(other.Pos, this.Pos, factor)
-	this.SizeGrowth += min(other.Size, this.Size)
-	this.Size = max(this.Size, other.Size)
+	this.SizeGrowth += float32(math.Sqrt(math.Pow(float64(min), 2)+math.Pow(float64(max), 2))) - max
+	this.Size = max
 }
 
 func (this *Body) GetMass() float32 {
-	return u.SizeToMass(this.Size)
+	return SizeToMass(this.Size)
 }
 
 func (this *Body) GetKineticEnergy() float32 {
@@ -52,7 +53,7 @@ func (this *Body) Collides(other *Body) bool {
 		return false
 	}
 
-	return rl.Vector2Length(this.Distance(other)) <= max(this.Size, other.Size)
+	return rl.Vector2Length(this.Distance(other)) <= max(this.Size, other.Size)/2
 }
 
 func (this *Body) Distance(other *Body) Vec {
@@ -66,23 +67,23 @@ func (this *Body) GravityFrom(other *Body) Vec {
 
 	attraction := rl.Vector2Scale(
 		dir,
-		u.Gravity(this.GetMass(), other.GetMass(), len),
+		Gravity(this.GetMass(), other.GetMass(), len),
 	)
 
 	repulsion := rl.Vector2Scale(
 		rl.Vector2Negate(dir),
-		u.Explosion(
+		Explosion(
 			this.GetMass(),
-			u.SizeToMass(other.SizeGrowth),
+			SizeToMass(other.SizeGrowth),
 			len,
-			50000/len,
+			2000*this.Size,
 		),
 	)
 
 	return rl.Vector2Add(attraction, repulsion)
 }
 
-func (this *Body) ApplyForce(force Vec, dt float32, bounds Space) {
+func (this *Body) Move(force Vec, dt float32, bounds Space) {
 	prevVel := this.Vel
 	a := rl.Vector2Scale(force, 1./this.GetMass())
 

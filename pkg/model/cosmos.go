@@ -26,7 +26,7 @@ func (this *Cosmos) Remove(index int) {
 func (this *Cosmos) Update(dt float32) {
 	for _, body := range this.Bodies {
 		body.Grow(dt)
-		body.ApplyForce(this.GatherForces(body), dt, this.Bounds)
+		body.Move(this.GatherForces(body), dt, this.Bounds)
 	}
 
 	for i, body := range this.Bodies {
